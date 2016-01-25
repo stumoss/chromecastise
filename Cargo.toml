@@ -1,0 +1,7 @@
+[package]
+name = "chromecastise"
+version = "0.1.0"
+authors = ["Stuart Moss <samoss@gmail.com>"]
+
+[dependencies]
+clap = "^1.5"
