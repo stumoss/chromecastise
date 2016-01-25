@@ -4,4 +4,4 @@ version = "1.0.0"
 authors = ["Stuart Moss <samoss@gmail.com>"]
 
 [dependencies]
-clap = "^1.5"
+clap = "^2"
