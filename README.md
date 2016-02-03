@@ -1,4 +1,6 @@
 # Chromecastise
+[![Build Status](https://travis-ci.org/stumoss/chromecastise.svg?branch=master)](https://travis-ci.org/stumoss/chromecastise)
+
 This project aims to provide a simple wrapper around the ffmpeg and mediainfo
 tools to allow simple transcoding of video files for use with both the
 original chromecast device and iOS devices. I currently use minidlnad to share
