@@ -1,5 +1,6 @@
 #[macro_use]
 extern crate clap;
+extern crate num_cpus;
 
 use std::path::{Path, PathBuf};
 use clap::{App, Arg, ArgMatches, AppSettings};
@@ -76,7 +77,6 @@ fn process_file(file: &Path, container_format: &str, test: bool) {
         output_audio_codec = "copy";
     }
 
-    println!("Container format: {} -> {}", ext, container_format);
     if output_video_codec == "copy" && output_audio_codec == "copy" && ext == container_format {
         println!("{:?} - No conversion required", file);
         return;
@@ -90,9 +90,10 @@ fn process_file(file: &Path, container_format: &str, test: bool) {
                              container_format));
 
     if !test {
+        let cpu_count = num_cpus::get();
         Command::new("ffmpeg")
             .arg("-threads")
-            .arg("4")
+            .arg(format!("{}", cpu_count))
             .arg("-i")
             .arg(&file)
             .arg("-map")
@@ -126,7 +127,8 @@ fn process_file(file: &Path, container_format: &str, test: bool) {
     }
 
     println!("Transcoded file {}: Video: {} -> {} Audio: {} -> {}",
-             output_file.display(),
+             //output_file.display(),
+	     file.to_str().expect("failed to convert path to string"),
              original_video_codec,
              output_video_codec,
              original_audio_codec,
