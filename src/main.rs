@@ -6,8 +6,20 @@ use std::path::{Path, PathBuf};
 use clap::{App, Arg, ArgMatches, AppSettings};
 use std::process::Command;
 
-const KNOWN_FILE_EXTENSIONS: [&'static str; 12] = ["mkv", "avi", "mp4", "3gp", "mov", "mpg",
-                                                   "mpeg", "qt", "wmv", "m2ts", "flv", "m4v"];
+const KNOWN_FILE_EXTENSIONS: [&'static str; 12] = [
+    "mkv",
+    "avi",
+    "mp4",
+    "3gp",
+    "mov",
+    "mpg",
+    "mpeg",
+    "qt",
+    "wmv",
+    "m2ts",
+    "flv",
+    "m4v",
+];
 
 const SUPPORTED_VIDEO_CODECS: [&'static str; 1] = ["AVC"];
 const SUPPORTED_AUDIO_CODECS: [&'static str; 1] = ["AAC"];
@@ -42,17 +54,17 @@ fn process_file(file: &Path, container_format: &str, test: bool) {
     // 1 - Need to get video codec using mediainfo (or ideally a rust native
     // library) here.
     let output = Command::new("mediainfo")
-                     .arg("--Inform=Video;%Format%")
-                     .arg(file)
-                     .output()
-                     .unwrap_or_else(|e| panic!("Failed to execute process: {}", e));
+        .arg("--Inform=Video;%Format%")
+        .arg(file)
+        .output()
+        .unwrap_or_else(|e| panic!("Failed to execute process: {}", e));
 
     let mut output_video_codec = DEFAULT_VIDEO_CODEC;
     let original_video_codec = std::str::from_utf8(&output.stdout)
-                                   .unwrap_or_else(|e| {
-                                       panic!("Failed to extract video codec from output: {}", e)
-                                   })
-                                   .trim_right();
+        .unwrap_or_else(|e| {
+            panic!("Failed to extract video codec from output: {}", e)
+        })
+        .trim_right();
 
     if SUPPORTED_VIDEO_CODECS.contains(&original_video_codec.trim_right()) {
         output_video_codec = "copy";
@@ -61,17 +73,17 @@ fn process_file(file: &Path, container_format: &str, test: bool) {
     // 2 - Need to get audio codec using mediainfo (or ideally a rust native
     // library) here.
     let output = Command::new("mediainfo")
-                     .arg("--Inform=Audio;%Format%")
-                     .arg(file)
-                     .output()
-                     .unwrap_or_else(|e| panic!("Failed to execute process: {}", e));
+        .arg("--Inform=Audio;%Format%")
+        .arg(file)
+        .output()
+        .unwrap_or_else(|e| panic!("Failed to execute process: {}", e));
 
     let mut output_audio_codec = DEFAULT_AUDIO_CODEC;
     let original_audio_codec = std::str::from_utf8(&output.stdout)
-                                   .unwrap_or_else(|e| {
-                                       panic!("Failed to extract audio codec from output: {}", e)
-                                   })
-                                   .trim_right();
+        .unwrap_or_else(|e| {
+            panic!("Failed to extract audio codec from output: {}", e)
+        })
+        .trim_right();
 
     if SUPPORTED_AUDIO_CODECS.contains(&original_audio_codec.trim_right()) {
         output_audio_codec = "copy";
@@ -85,9 +97,11 @@ fn process_file(file: &Path, container_format: &str, test: bool) {
     // 3 - Need to make a system call to ffpmeg to do the conversion (or
     // ideally use a rust wrapper around ffmpeg).
     let mut output_file = PathBuf::from(file.parent().unwrap());
-    output_file.push(format!("{}_new.{}",
-                             file.file_stem().unwrap().to_str().unwrap(),
-                             container_format));
+    output_file.push(format!(
+        "{}_new.{}",
+        file.file_stem().unwrap().to_str().unwrap(),
+        container_format
+    ));
 
     if !test {
         let cpu_count = num_cpus::get();
@@ -126,13 +140,14 @@ fn process_file(file: &Path, container_format: &str, test: bool) {
             .unwrap_or_else(|e| panic!("Failed to execute process: {}", e));
     }
 
-    println!("Transcoded file {}: Video: {} -> {} Audio: {} -> {}",
-             //output_file.display(),
-	     file.to_str().expect("failed to convert path to string"),
-             original_video_codec,
-             output_video_codec,
-             original_audio_codec,
-             output_audio_codec);
+    println!(
+        "Transcoded file {}: Video: {} -> {} Audio: {} -> {}",
+        file.to_str().expect("failed to convert path to string"),
+        original_video_codec,
+        output_video_codec,
+        original_audio_codec,
+        output_audio_codec
+    );
 }
 
 fn parse_args<'a>() -> ArgMatches<'a> {
@@ -140,26 +155,31 @@ fn parse_args<'a>() -> ArgMatches<'a> {
         .version(&crate_version!()[..])
         .author("Stuart Moss <samoss@gmail.com>")
         .setting(AppSettings::ArgRequiredElseHelp)
-        .arg(Arg::with_name("mp4")
-                 .long("mp4")
-                 .short("a")
-                 .help("Use mp4 as the output container format")
-                 .conflicts_with("mkv")
-                 .takes_value(false))
-        .arg(Arg::with_name("mkv")
-                 .long("mkv")
-                 .short("b")
-                 .help("Use mkv as the output container format")
-                 .takes_value(false))
-        .arg(Arg::with_name("test")
-                 .required(false)
-                 .long("test")
-                 .short("t")
-                 .help("Test to see if conversion is required")
-                 .takes_value(false))
-        .arg(Arg::with_name("file")
-                 .required(true)
-                 .index(1)
-                 .help("The file to convert"))
+        .arg(
+            Arg::with_name("mp4")
+                .long("mp4")
+                .short("a")
+                .help("Use mp4 as the output container format")
+                .conflicts_with("mkv")
+                .takes_value(false),
+        )
+        .arg(
+            Arg::with_name("mkv")
+                .long("mkv")
+                .short("b")
+                .help("Use mkv as the output container format")
+                .takes_value(false),
+        )
+        .arg(
+            Arg::with_name("test")
+                .required(false)
+                .long("test")
+                .short("t")
+                .help("Test to see if conversion is required")
+                .takes_value(false),
+        )
+        .arg(Arg::with_name("file").required(true).index(1).help(
+            "The file to convert",
+        ))
         .get_matches()
 }

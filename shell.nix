@@ -5,7 +5,7 @@ let
 in
 rustPlatform.buildRustPackage {
   name = "chromecastise-${version}";
-  buildInputs = [ ];
+  buildInputs = [ rustfmt ];
   src = ./.;
-  depsSha256 = "0r91zd41mn079kzmjx2nns8zysc4y2ymyws349k46miz3xbnr8wh";
+  cargoSha256 = "1a2l7ryiwkzqqapssznk8d96h4pk2fm96x2wgz582jb1ylp3l9jl";
 }
