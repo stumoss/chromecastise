@@ -1,7 +1,7 @@
 with import <nixpkgs> {};
 
 let
-  version = "1.0.1";
+  version = "1.0.2";
 in
 rustPlatform.buildRustPackage {
   name = "chromecastise-${version}";
