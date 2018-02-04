@@ -6,3 +6,4 @@ authors = ["Stuart Moss <samoss@gmail.com>"]
 [dependencies]
 clap = "^2"
 num_cpus = "1.0"
+log = "*"
