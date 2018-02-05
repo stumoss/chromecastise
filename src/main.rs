@@ -47,7 +47,6 @@ fn main() {
     let test = matches.is_present("test");
 
     for file in files {
-        println!("file = {}", file.to_str().unwrap());
         process_file(file, container_format, test);
     }
 }
