@@ -29,22 +29,5 @@ Converting a single file:
 $ chromecastise --mp4 YourFileNameHere.avi
 ```
 
-Converting a number of files within a directory:
-
-```
-$ for file in *.avi
-do
-    chromecastise --mp4 "$file"
-done
-```
-
-Once the conversion is done you will probably want to rename the converted files (as by default
-you will have a new file with the same original filename but a new suffix of "_new.mp4"):
-
-```
-$ for file in *_new.mp4
-do mv "$file" "${file%_new.mp4}.mp4"
-done
-```
-
-This will rename all files from "TheOriginalFileName_new.mp4" to "TheOriginalFileName.mp4".
+If the conversion is required (and successful) you should have a new file with
+the same original filename but a new suffix of "_new.mp4"):

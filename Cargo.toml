@@ -1,8 +1,9 @@
 [package]
 name = "chromecastise"
-version = "1.0.2"
+version = "1.0.3"
 authors = ["Stuart Moss <samoss@gmail.com>"]
 
 [dependencies]
 clap = "^2"
 num_cpus = "1.0"
+log = "*"

@@ -24,7 +24,6 @@ const KNOWN_FILE_EXTENSIONS: [&'static str; 12] = [
 const SUPPORTED_VIDEO_CODECS: [&'static str; 1] = ["AVC"];
 const SUPPORTED_AUDIO_CODECS: [&'static str; 1] = ["AAC"];
 
-
 const DEFAULT_VIDEO_CODEC: &'static str = "libx264";
 const DEFAULT_AUDIO_CODEC: &'static str = "aac";
 
@@ -37,52 +36,59 @@ fn main() {
         container_format = "mkv";
     }
 
-    let file = Path::new(matches.value_of("file").unwrap());
+    let files = matches
+        .values_of("file")
+        .unwrap()
+        .collect::<Vec<&str>>()
+        .iter()
+        .map(|&f| Path::new(f))
+        .collect::<Vec<&Path>>();
+
     let test = matches.is_present("test");
 
-    process_file(file, container_format, test);
+    for file in files {
+        process_file(file, container_format, test);
+    }
 }
 
 fn process_file(file: &Path, container_format: &str, test: bool) {
 
     let ext = file.extension().unwrap().to_str().unwrap();
+
     if !KNOWN_FILE_EXTENSIONS.contains(&ext) {
         println!("{} is not a supported video format", ext);
         return;
     }
 
-    // 1 - Need to get video codec using mediainfo (or ideally a rust native
+    // TODO: Need to get video codec using mediainfo (or ideally a rust native
     // library) here.
     let output = Command::new("mediainfo")
         .arg("--Inform=Video;%Format%")
         .arg(file)
         .output()
-        .unwrap_or_else(|e| panic!("Failed to execute process: {}", e));
+        .expect("failed to get video format with mediainfo");
 
     let mut output_video_codec = DEFAULT_VIDEO_CODEC;
     let original_video_codec = std::str::from_utf8(&output.stdout)
-        .unwrap_or_else(|e| {
-            panic!("Failed to extract video codec from output: {}", e)
-        })
+        .expect("failed to extract video codec from output")
         .trim_right();
 
     if SUPPORTED_VIDEO_CODECS.contains(&original_video_codec.trim_right()) {
         output_video_codec = "copy";
     }
 
-    // 2 - Need to get audio codec using mediainfo (or ideally a rust native
+    // TODO: Need to get audio codec using mediainfo (or ideally a rust native
     // library) here.
     let output = Command::new("mediainfo")
         .arg("--Inform=Audio;%Format%")
         .arg(file)
         .output()
-        .unwrap_or_else(|e| panic!("Failed to execute process: {}", e));
+        .expect("failed to get audio format with mediainfo");
+
 
     let mut output_audio_codec = DEFAULT_AUDIO_CODEC;
     let original_audio_codec = std::str::from_utf8(&output.stdout)
-        .unwrap_or_else(|e| {
-            panic!("Failed to extract audio codec from output: {}", e)
-        })
+        .expect("failed to extract audio codec from output")
         .trim_right();
 
     if SUPPORTED_AUDIO_CODECS.contains(&original_audio_codec.trim_right()) {
@@ -90,12 +96,10 @@ fn process_file(file: &Path, container_format: &str, test: bool) {
     }
 
     if output_video_codec == "copy" && output_audio_codec == "copy" && ext == container_format {
-        println!("{:?} - No conversion required", file);
+        println!("{} - No conversion required", file.to_str().unwrap());
         return;
     }
 
-    // 3 - Need to make a system call to ffpmeg to do the conversion (or
-    // ideally use a rust wrapper around ffmpeg).
     let mut output_file = PathBuf::from(file.parent().unwrap());
     output_file.push(format!(
         "{}_new.{}",
@@ -105,6 +109,9 @@ fn process_file(file: &Path, container_format: &str, test: bool) {
 
     if !test {
         let cpu_count = num_cpus::get();
+
+        // TODO: Find a rust native (or ffmpeg wrapper) to get do the
+        // actual transcoding
         Command::new("ffmpeg")
             .arg("-threads")
             .arg(format!("{}", cpu_count))
@@ -137,7 +144,7 @@ fn process_file(file: &Path, container_format: &str, test: bool) {
             .arg("-y")
             .arg(&output_file)
             .status()
-            .unwrap_or_else(|e| panic!("Failed to execute process: {}", e));
+            .expect("failed to transcode video with ffmpeg");
     }
 
     println!(
@@ -178,8 +185,13 @@ fn parse_args<'a>() -> ArgMatches<'a> {
                 .help("Test to see if conversion is required")
                 .takes_value(false),
         )
-        .arg(Arg::with_name("file").required(true).index(1).help(
-            "The file to convert",
-        ))
+        .arg(
+            Arg::with_name("file")
+                .required(true)
+                .index(1)
+                .multiple(true)
+                .takes_value(true)
+                .help("The files to convert"),
+        )
         .get_matches()
 }
