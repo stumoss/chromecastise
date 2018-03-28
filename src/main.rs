@@ -6,7 +6,7 @@ use std::path::{Path, PathBuf};
 use clap::{App, Arg, ArgMatches, AppSettings};
 use std::process::Command;
 
-const KNOWN_FILE_EXTENSIONS: [&'static str; 12] = [
+const KNOWN_FILE_EXTENSIONS: [&str; 12] = [
     "mkv",
     "avi",
     "mp4",
@@ -21,20 +21,20 @@ const KNOWN_FILE_EXTENSIONS: [&'static str; 12] = [
     "m4v",
 ];
 
-const SUPPORTED_VIDEO_CODECS: [&'static str; 1] = ["AVC"];
-const SUPPORTED_AUDIO_CODECS: [&'static str; 1] = ["AAC"];
+const SUPPORTED_VIDEO_CODECS: [&str; 1] = ["AVC"];
+const SUPPORTED_AUDIO_CODECS: [&str; 1] = ["AAC"];
 
-const DEFAULT_VIDEO_CODEC: &'static str = "libx264";
-const DEFAULT_AUDIO_CODEC: &'static str = "aac";
+const DEFAULT_VIDEO_CODEC: &str = "libx264";
+const DEFAULT_AUDIO_CODEC: &str = "aac";
 
 fn main() {
     let matches = parse_args();
 
-    let mut container_format = "mp4";
-
-    if matches.is_present("mkv") {
-        container_format = "mkv";
-    }
+    let container_format = if matches.is_present("mkv") {
+        "mkv"
+    } else {
+        "mp4"
+    };
 
     let files = matches
         .values_of("file")
