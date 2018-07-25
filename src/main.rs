@@ -1,7 +1,6 @@
 #![feature(rust_2018_preview)]
 #[macro_use]
 extern crate clap;
-extern crate num_cpus;
 
 use std::path::{Path, PathBuf};
 use clap::{App, Arg, ArgMatches, AppSettings};
