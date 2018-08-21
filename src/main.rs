@@ -1,9 +1,7 @@
-#![feature(rust_2018_preview)]
-#[macro_use]
-extern crate clap;
+#![warn(rust_2018_idioms)]
 
+use clap::{App, AppSettings, Arg, ArgMatches, crate_version};
 use std::path::{Path, PathBuf};
-use clap::{App, Arg, ArgMatches, AppSettings};
 use std::process::Command;
 
 const KNOWN_FILE_EXTENSIONS: [&str; 12] = [
@@ -38,7 +36,7 @@ fn main() {
 
     let files = matches
         .values_of("file")
-        .unwrap()
+        .expect("could not get file from arguments")
         .collect::<Vec<&str>>()
         .iter()
         .map(|&f| Path::new(f))
@@ -52,8 +50,10 @@ fn main() {
 }
 
 fn process_file(file: &Path, container_format: &str, test: bool) {
-
-    let ext = file.extension().unwrap().to_str().unwrap();
+    let ext = file.extension()
+        .expect("failed to get extension from file")
+        .to_str()
+        .expect("failed to convert file to string");
 
     if !KNOWN_FILE_EXTENSIONS.contains(&ext) {
         println!("{} is not a supported video format", ext);
@@ -85,7 +85,6 @@ fn process_file(file: &Path, container_format: &str, test: bool) {
         .output()
         .expect("failed to get audio format with mediainfo");
 
-
     let mut output_audio_codec = DEFAULT_AUDIO_CODEC;
     let original_audio_codec = std::str::from_utf8(&output.stdout)
         .expect("failed to extract audio codec from output")
@@ -96,14 +95,20 @@ fn process_file(file: &Path, container_format: &str, test: bool) {
     }
 
     if output_video_codec == "copy" && output_audio_codec == "copy" && ext == container_format {
-        println!("{} - No conversion required", file.to_str().unwrap());
+        println!(
+            "{} - No conversion required",
+            file.to_str().expect("failed to convert filename to string")
+        );
         return;
     }
 
-    let mut output_file = PathBuf::from(file.parent().unwrap());
+    let mut output_file = PathBuf::from(file.parent().expect("failed to get file.parent()"));
     output_file.push(format!(
         "{}_new.{}",
-        file.file_stem().unwrap().to_str().unwrap(),
+        file.file_stem()
+            .expect("failed to get file_stem")
+            .to_str()
+            .expect("failed to convert file_stem to string"),
         container_format
     ));
 
