@@ -13,6 +13,7 @@ stdenv.mkDerivation {
   cargoSha256 = "1dmybqbbica7k9z9f25yzak3ji4np5mhl9xly35gjypdd2jzcf2j";
 
   buildInputs = [
+    gitAndTools.gitflow
     rustfmt
     latest.rustChannels.nightly.rust
     carnix
