@@ -196,7 +196,7 @@ fn parse_args<'a>() -> ArgMatches<'a> {
                 .index(1)
                 .multiple(true)
                 .takes_value(true)
-                .help("The files to convert"),
+                .help("The file(s) to convert"),
         )
         .get_matches()
 }
