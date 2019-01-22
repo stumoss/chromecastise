@@ -1,22 +1,11 @@
 #![warn(rust_2018_idioms)]
 
-use clap::{App, AppSettings, Arg, ArgMatches, crate_version};
+use clap::{crate_version, App, AppSettings, Arg, ArgMatches};
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
 const KNOWN_FILE_EXTENSIONS: [&str; 12] = [
-    "mkv",
-    "avi",
-    "mp4",
-    "3gp",
-    "mov",
-    "mpg",
-    "mpeg",
-    "qt",
-    "wmv",
-    "m2ts",
-    "flv",
-    "m4v",
+    "mkv", "avi", "mp4", "3gp", "mov", "mpg", "mpeg", "qt", "wmv", "m2ts", "flv", "m4v",
 ];
 
 const SUPPORTED_VIDEO_CODECS: [&str; 1] = ["AVC"];
@@ -40,17 +29,20 @@ fn main() {
         .collect::<Vec<&str>>()
         .iter()
         .map(|&f| Path::new(f))
+        .filter(|&f| f.exists())
         .collect::<Vec<&Path>>();
 
     let test = matches.is_present("test");
 
     for file in files {
+        println!("Processing file: {:?}", file);
         process_file(file, container_format, test);
     }
 }
 
 fn process_file(file: &Path, container_format: &str, test: bool) {
-    let ext = file.extension()
+    let ext = file
+        .extension()
         .expect("failed to get extension from file")
         .to_str()
         .expect("failed to convert file to string");
