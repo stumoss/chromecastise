@@ -1,4 +1,4 @@
-{ stdenv, rustPlatform }:
+{ stdenv, rustPlatform, ffmpeg, mediainfo }:
 
 rustPlatform.buildRustPackage rec {
   name = "chromecastise-${version}";
@@ -7,6 +7,11 @@ rustPlatform.buildRustPackage rec {
   src = ./.;
 
   cargoSha256 = "1dmybqbbica7k9z9f25yzak3ji4np5mhl9xly35gjypdd2jzcf2j";
+
+  buildInputs = [
+    ffmpeg
+    mediainfo
+    ];
 
   meta = with stdenv.lib; {
     description = "Wrapper for ffmpeg to convert your media for use with chromecast";
