@@ -2,8 +2,18 @@
 name = "chromecastise"
 version = "1.0.3"
 authors = ["Stuart Moss <samoss@gmail.com>"]
+build = "build.rs"
+
+[build-dependencies.clap]
+version = "^2"
+default-features = false
+features = ["suggestions"]
+
+[dependencies.clap]
+version = "^2"
+default-features = false
+features = ["suggestions"]
 
 [dependencies]
-clap = "^2"
 num_cpus = "1.0"
 log = "*"
