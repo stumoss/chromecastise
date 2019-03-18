@@ -1,11 +1,9 @@
 with import <nixpkgs> {};
 
-let
-  version = "1.0.3";
-in
-rustPlatform.buildRustPackage {
+rustPlatform.buildRustPackage rec {
   name = "chromecastise-${version}";
-  buildInputs = [ rustfmt ];
+  version = "1.0.3";
+  buildInputs = [ mediainfo ffmpeg gitAndTools.gitflow ];
   src = ./.;
-  cargoSha256 = "1w2nz51yyvxr8h78s7gdh16svvivr71jj5bcnyv4n4wpcd789abf";
+  cargoSha256 = "1dmybqbbica7k9z9f25yzak3ji4np5mhl9xly35gjypdd2jzcf2j";
 }
