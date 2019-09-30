@@ -1,59 +1,52 @@
-extern crate clap;
-extern crate num_cpus;
-
-mod cli;
+#![warn(rust_2018_idioms)]
 
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-const KNOWN_FILE_EXTENSIONS: [&'static str; 12] = [
-    "mkv",
-    "avi",
-    "mp4",
-    "3gp",
-    "mov",
-    "mpg",
-    "mpeg",
-    "qt",
-    "wmv",
-    "m2ts",
-    "flv",
-    "m4v",
+mod cli;
+
+const KNOWN_FILE_EXTENSIONS: [&str; 12] = [
+    "mkv", "avi", "mp4", "3gp", "mov", "mpg", "mpeg", "qt", "wmv", "m2ts", "flv", "m4v",
 ];
 
-const SUPPORTED_VIDEO_CODECS: [&'static str; 1] = ["AVC"];
-const SUPPORTED_AUDIO_CODECS: [&'static str; 1] = ["AAC"];
+const SUPPORTED_VIDEO_CODECS: [&str; 1] = ["AVC"];
+const SUPPORTED_AUDIO_CODECS: [&str; 1] = ["AAC"];
 
-const DEFAULT_VIDEO_CODEC: &'static str = "libx264";
-const DEFAULT_AUDIO_CODEC: &'static str = "aac";
+const DEFAULT_VIDEO_CODEC: &str = "libx264";
+const DEFAULT_AUDIO_CODEC: &str = "aac";
 
 fn main() {
     let matches = cli::build_cli().get_matches();
 
-    let mut container_format = "mp4";
-
-    if matches.is_present("mkv") {
-        container_format = "mkv";
-    }
+    let container_format = if matches.is_present("mkv") {
+        "mkv"
+    } else {
+        "mp4"
+    };
 
     let files = matches
         .values_of("file")
-        .unwrap()
+        .expect("could not get file from arguments")
         .collect::<Vec<&str>>()
         .iter()
         .map(|&f| Path::new(f))
+        .filter(|&f| f.exists())
         .collect::<Vec<&Path>>();
 
     let test = matches.is_present("test");
 
     for file in files {
+        println!("Processing file: {:?}", file);
         process_file(file, container_format, test);
     }
 }
 
 fn process_file(file: &Path, container_format: &str, test: bool) {
-
-    let ext = file.extension().unwrap().to_str().unwrap();
+    let ext = file
+        .extension()
+        .expect("failed to get extension from file")
+        .to_str()
+        .expect("failed to convert file to string");
 
     if !KNOWN_FILE_EXTENSIONS.contains(&ext) {
         println!("failed to process file '{}' because '{}' is not a supported video format", file.display(), ext);
@@ -71,9 +64,9 @@ fn process_file(file: &Path, container_format: &str, test: bool) {
     let mut output_video_codec = DEFAULT_VIDEO_CODEC;
     let original_video_codec = std::str::from_utf8(&output.stdout)
         .expect("failed to extract video codec from output")
-        .trim_right();
+        .trim_end();
 
-    if SUPPORTED_VIDEO_CODECS.contains(&original_video_codec.trim_right()) {
+    if SUPPORTED_VIDEO_CODECS.contains(&original_video_codec.trim_end()) {
         output_video_codec = "copy";
     }
 
@@ -85,25 +78,30 @@ fn process_file(file: &Path, container_format: &str, test: bool) {
         .output()
         .expect("failed to get audio format with mediainfo");
 
-
     let mut output_audio_codec = DEFAULT_AUDIO_CODEC;
     let original_audio_codec = std::str::from_utf8(&output.stdout)
         .expect("failed to extract audio codec from output")
-        .trim_right();
+        .trim_end();
 
-    if SUPPORTED_AUDIO_CODECS.contains(&original_audio_codec.trim_right()) {
+    if SUPPORTED_AUDIO_CODECS.contains(&original_audio_codec.trim_end()) {
         output_audio_codec = "copy";
     }
 
     if output_video_codec == "copy" && output_audio_codec == "copy" && ext == container_format {
-        println!("{} - No conversion required", file.to_str().unwrap());
+        println!(
+            "{} - No conversion required",
+            file.to_str().expect("failed to convert filename to string")
+        );
         return;
     }
 
-    let mut output_file = PathBuf::from(file.parent().unwrap());
+    let mut output_file = PathBuf::from(file.parent().expect("failed to get file.parent()"));
     output_file.push(format!(
         "{}_new.{}",
-        file.file_stem().unwrap().to_str().unwrap(),
+        file.file_stem()
+            .expect("failed to get file_stem")
+            .to_str()
+            .expect("failed to convert file_stem to string"),
         container_format
     ));
 
