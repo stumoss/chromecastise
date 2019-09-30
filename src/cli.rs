@@ -1,4 +1,4 @@
-use clap::{App, Arg, AppSettings, crate_version};
+use clap::{crate_version, App, AppSettings, Arg};
 
 pub fn build_cli() -> App<'static, 'static> {
     App::new("chromecastise")
