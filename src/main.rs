@@ -49,7 +49,11 @@ fn process_file(file: &Path, container_format: &str, test: bool) {
         .expect("failed to convert file to string");
 
     if !KNOWN_FILE_EXTENSIONS.contains(&ext) {
-        println!("failed to process file '{}' because '{}' is not a supported video format", file.display(), ext);
+        println!(
+            "failed to process file '{}' because '{}' is not a supported video format",
+            file.display(),
+            ext
+        );
         return;
     }
 
