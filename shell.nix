@@ -1,7 +1,7 @@
 let
   moz_overlay = import (builtins.fetchTarball https://github.com/mozilla/nixpkgs-mozilla/archive/master.tar.gz);
   nixpkgs = import <nixpkgs> { overlays = [ moz_overlay ]; };
-  version = "1.0.3";
+  version = "1.0.6";
 in
 
 with nixpkgs;
@@ -15,7 +15,7 @@ stdenv.mkDerivation {
   buildInputs = [
     gitAndTools.gitflow
     rustfmt
-    latest.rustChannels.nightly.rust
+    latest.rustChannels.stable.rust
     carnix
   ];
 }

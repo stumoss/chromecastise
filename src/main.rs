@@ -1,8 +1,9 @@
 #![warn(rust_2018_idioms)]
 
-use clap::{crate_version, App, AppSettings, Arg, ArgMatches};
 use std::path::{Path, PathBuf};
 use std::process::Command;
+
+mod cli;
 
 const KNOWN_FILE_EXTENSIONS: [&str; 12] = [
     "mkv", "avi", "mp4", "3gp", "mov", "mpg", "mpeg", "qt", "wmv", "m2ts", "flv", "m4v",
@@ -15,7 +16,7 @@ const DEFAULT_VIDEO_CODEC: &str = "libx264";
 const DEFAULT_AUDIO_CODEC: &str = "aac";
 
 fn main() {
-    let matches = parse_args();
+    let matches = cli::build_cli().get_matches();
 
     let container_format = if matches.is_present("mkv") {
         "mkv"
@@ -48,7 +49,7 @@ fn process_file(file: &Path, container_format: &str, test: bool) {
         .expect("failed to convert file to string");
 
     if !KNOWN_FILE_EXTENSIONS.contains(&ext) {
-        println!("{} is not a supported video format", ext);
+        println!("failed to process file '{}' because '{}' is not a supported video format", file.display(), ext);
         return;
     }
 
@@ -152,43 +153,4 @@ fn process_file(file: &Path, container_format: &str, test: bool) {
         original_audio_codec,
         output_audio_codec
     );
-}
-
-fn parse_args<'a>() -> ArgMatches<'a> {
-    App::new("chromecastise")
-        .version(&crate_version!()[..])
-        .author("Stuart Moss <samoss@gmail.com>")
-        .setting(AppSettings::ArgRequiredElseHelp)
-        .arg(
-            Arg::with_name("mp4")
-                .long("mp4")
-                .short("a")
-                .help("Use mp4 as the output container format")
-                .conflicts_with("mkv")
-                .takes_value(false),
-        )
-        .arg(
-            Arg::with_name("mkv")
-                .long("mkv")
-                .short("b")
-                .help("Use mkv as the output container format")
-                .takes_value(false),
-        )
-        .arg(
-            Arg::with_name("test")
-                .required(false)
-                .long("test")
-                .short("t")
-                .help("Test to see if conversion is required")
-                .takes_value(false),
-        )
-        .arg(
-            Arg::with_name("file")
-                .required(true)
-                .index(1)
-                .multiple(true)
-                .takes_value(true)
-                .help("The file(s) to convert"),
-        )
-        .get_matches()
 }
