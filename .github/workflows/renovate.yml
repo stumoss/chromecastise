@@ -1,2 +1,10 @@
-name: GitHub Action for Renovate
-uses: Djiit/action-renovate@v1.0.0-alpha
+name: Renovate
+
+on:
+  schedule:
+    - cron:  '0 2 * * *'
+
+jobs:
+  update:
+    name: Update Dependencies
+    uses: Djiit/action-renovate@v1.0.0-alpha
