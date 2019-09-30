@@ -63,9 +63,9 @@ fn process_file(file: &Path, container_format: &str, test: bool) {
     let mut output_video_codec = DEFAULT_VIDEO_CODEC;
     let original_video_codec = std::str::from_utf8(&output.stdout)
         .expect("failed to extract video codec from output")
-        .trim_right();
+        .trim_end();
 
-    if SUPPORTED_VIDEO_CODECS.contains(&original_video_codec.trim_right()) {
+    if SUPPORTED_VIDEO_CODECS.contains(&original_video_codec.trim_end()) {
         output_video_codec = "copy";
     }
 
@@ -80,9 +80,9 @@ fn process_file(file: &Path, container_format: &str, test: bool) {
     let mut output_audio_codec = DEFAULT_AUDIO_CODEC;
     let original_audio_codec = std::str::from_utf8(&output.stdout)
         .expect("failed to extract audio codec from output")
-        .trim_right();
+        .trim_end();
 
-    if SUPPORTED_AUDIO_CODECS.contains(&original_audio_codec.trim_right()) {
+    if SUPPORTED_AUDIO_CODECS.contains(&original_audio_codec.trim_end()) {
         output_audio_codec = "copy";
     }
 
