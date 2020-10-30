@@ -5,10 +5,6 @@ use std::process::Command;
 
 mod cli;
 
-const KNOWN_FILE_EXTENSIONS: [&str; 12] = [
-    "mkv", "avi", "mp4", "3gp", "mov", "mpg", "mpeg", "qt", "wmv", "m2ts", "flv", "m4v",
-];
-
 const SUPPORTED_VIDEO_CODECS: [&str; 1] = ["AVC"];
 const SUPPORTED_AUDIO_CODECS: [&str; 1] = ["AAC"];
 
@@ -47,15 +43,6 @@ fn process_file(file: &Path, container_format: &str, test: bool) {
         .expect("failed to get extension from file")
         .to_str()
         .expect("failed to convert file to string");
-
-    if !KNOWN_FILE_EXTENSIONS.contains(&ext) {
-        println!(
-            "failed to process file '{}' because '{}' is not a supported video format",
-            file.display(),
-            ext
-        );
-        return;
-    }
 
     // TODO: Need to get video codec using mediainfo (or ideally a rust native
     // library) here.
