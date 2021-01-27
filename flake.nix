@@ -12,9 +12,11 @@
         packages = flake-utils.lib.flattenTree {
           chromecastise = pkgs.rustPlatform.buildRustPackage {
             name = "chromecastise";
+
             src = self;
-            cargoSha256 = "0h09n2b0wpa2nfy07z3nw7w3x3hfjgm2n8lwk1bdwl63j6nm96sr";
-            # nativeBuildInputs = [
+
+            cargoSha256 = "fv7CgjAZwgHXlC72x0/+9SVh2THd/kYzf1z1Pa8a1yU=";
+
             buildInputs = [
              pkgs.openssl
              pkgs.makeWrapper
