@@ -14,10 +14,10 @@ const DEFAULT_AUDIO_CODEC: &str = "aac";
 fn main() {
     let matches = cli::build_cli().get_matches();
 
-    let container_format = if matches.is_present("mkv") {
-        "mkv"
-    } else {
+    let container_format = if matches.is_present("mp4") {
         "mp4"
+    } else {
+        "mkv"
     };
 
     let files = matches
