@@ -6,7 +6,7 @@
 
   outputs = { self, nixpkgs, flake-utils }:
 
-    flake-utils.lib.eachSystem [ "x86_64-linux" ] (
+    flake-utils.lib.eachDefaultSystem (
       system:
         let
           pkgs = nixpkgs.legacyPackages.${system};
@@ -35,10 +35,9 @@
             defaultPackage = packages.chromecastise;
             apps.chromecastise = flake-utils.lib.mkApp { drv = packages.chromecastise; };
             defaultApp = apps.chromecastise;
-            overlay = final: prev:
-              {
-                chromecastise = defaultPackage.${system}.chromecastise;
-              };
+            overlay = final: prev: {
+              chromecastise = defaultPackage.${system}.chromecastise;
+            };
           }
     );
 
