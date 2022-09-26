@@ -16,5 +16,5 @@ default-features = false
 features = ["suggestions"]
 
 [dependencies]
-num_cpus = "1.0"
+num_cpus = "1.13"
 log = "*"
