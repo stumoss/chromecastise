@@ -1,45 +1,53 @@
 {
   description = "A simple transcoding tool to make videos compatible with chromecast devices";
 
-  inputs.nixpkgs.url = github:NixOS/nixpkgs/nixos-unstable;
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
   inputs.flake-utils.url = "github:numtide/flake-utils";
 
   outputs = { self, nixpkgs, flake-utils }:
-
-    flake-utils.lib.eachDefaultSystem (
-      system:
+    let
+      allSupportedSystems = flake-utils.lib.eachSystem [
+        "x86_64-linux"
+        "x86_64-darwin"
+        "aarch64-linux"
+        "aarch64-darwin"
+      ];
+    in
+    allSupportedSystems
+      (
+        system:
         let
           pkgs = nixpkgs.legacyPackages.${system};
         in
-          rec {
-            packages = flake-utils.lib.flattenTree {
-              chromecastise = pkgs.rustPlatform.buildRustPackage {
-                name = "chromecastise";
+        rec {
+          packages = flake-utils.lib.flattenTree rec {
+            chromecastise = pkgs.rustPlatform.buildRustPackage {
+              name = "chromecastise";
 
-                src = self;
+              src = self;
 
-                cargoSha256 = "fv7CgjAZwgHXlC72x0/+9SVh2THd/kYzf1z1Pa8a1yU=";
+              cargoHash = "sha256-YCRkG8mduymxCfrQb3TQGSCtxxNvycwEv/cAFfZNGAo=";
 
-                buildInputs = [
-                  pkgs.openssl
-                  pkgs.makeWrapper
-                  pkgs.installShellFiles
-                ];
+              buildInputs = [
+                pkgs.openssl
+                pkgs.makeWrapper
+                pkgs.installShellFiles
+              ];
 
-                postInstall = ''
-                  wrapProgram $out/bin/chromecastise --prefix PATH : ${pkgs.lib.strings.makeBinPath [ pkgs.mediainfo pkgs.ffmpeg-full ]}
-                '';
-              };
+              postInstall = ''
+                wrapProgram $out/bin/chromecastise --prefix PATH : ${pkgs.lib.strings.makeBinPath [ pkgs.mediainfo pkgs.ffmpeg ]}
+              '';
             };
+            default = chromecastise;
+          };
 
-            defaultPackage = packages.chromecastise;
-            apps.chromecastise = flake-utils.lib.mkApp { drv = packages.chromecastise; };
-            defaultApp = apps.chromecastise;
-            overlay = final: prev: {
-              chromecastise = defaultPackage.${system}.chromecastise;
-            };
-          }
-    );
-
-
+          apps.chromecastise = flake-utils.lib.mkApp { drv = packages.chromecastise; };
+          apps.default = apps.chromecastise;
+        }
+      ) //
+    {
+      overlays.default = final: prev: {
+        chromecastise = self.packages.${prev.system}.chromecastise;
+      };
+    };
 }
