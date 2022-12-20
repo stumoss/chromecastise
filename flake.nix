@@ -26,7 +26,7 @@
 
               src = self;
 
-              cargoHash = "sha256-YCRkG8mduymxCfrQb3TQGSCtxxNvycwEv/cAFfZNGAo=";
+              cargoSha256 = "sha256-uVK62ra+G5TvpG7pCEawWYEQj4WlsrNtYCiA/GGAhTQ=";
 
               buildInputs = [
                 pkgs.openssl
