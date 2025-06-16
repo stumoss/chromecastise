@@ -26,7 +26,7 @@
 
               src = self;
 
-              cargoSha256 = "sha256-uVK62ra+G5TvpG7pCEawWYEQj4WlsrNtYCiA/GGAhTQ=";
+              cargoHash = "sha256-uVK62ra+G5TvpG7pCEawWYEQj4WlsrNtYCiA/GGAhTQ=";
 
               buildInputs = [
                 pkgs.openssl
@@ -47,7 +47,7 @@
       ) //
     {
       overlays.default = final: prev: {
-        chromecastise = self.packages.${prev.system}.chromecastise;
+        inherit (self.packages.${prev.system}) chromecastise;
       };
     };
 }
