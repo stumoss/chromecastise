@@ -2,50 +2,57 @@
   description = "A simple transcoding tool to make videos compatible with chromecast devices";
 
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-  inputs.flake-utils.url = "github:numtide/flake-utils";
 
-  outputs = { self, nixpkgs, flake-utils }:
+  outputs =
+    {
+      self,
+      nixpkgs,
+    }:
     let
-      allSupportedSystems = flake-utils.lib.eachSystem [
+      supportedSystems = [
         "x86_64-linux"
         "x86_64-darwin"
         "aarch64-linux"
         "aarch64-darwin"
       ];
+
+      forEachSupportedSystem =
+        f:
+        nixpkgs.lib.genAttrs supportedSystems (
+          system:
+          f {
+            pkgs = import nixpkgs { inherit system; };
+          }
+        );
     in
-    allSupportedSystems
-      (
-        system:
-        let
-          pkgs = nixpkgs.legacyPackages.${system};
-        in
-        rec {
-          packages = flake-utils.lib.flattenTree rec {
-            chromecastise = pkgs.rustPlatform.buildRustPackage {
-              name = "chromecastise";
-
-              src = self;
-
-              cargoHash = "sha256-uVK62ra+G5TvpG7pCEawWYEQj4WlsrNtYCiA/GGAhTQ=";
-
-              buildInputs = [
-                pkgs.openssl
-                pkgs.makeWrapper
-                pkgs.installShellFiles
-              ];
-
-              postInstall = ''
-                wrapProgram $out/bin/chromecastise --prefix PATH : ${pkgs.lib.strings.makeBinPath [ pkgs.mediainfo pkgs.ffmpeg ]}
-              '';
-            };
-            default = chromecastise;
-          };
-
-          apps.chromecastise = flake-utils.lib.mkApp { drv = packages.chromecastise; };
-          apps.default = apps.chromecastise;
-        }
-      ) //
     {
+      packages = forEachSupportedSystem (
+        { pkgs }:
+        rec {
+          chromecastise = pkgs.rustPlatform.buildRustPackage {
+            name = "chromecastise";
+            src = self;
+            cargoHash = "sha256-BTp5du2m7sSlbvIrpI+YEmGURp2YteiojS2raBnNoKg=";
+
+            buildInputs = [
+              pkgs.openssl
+              pkgs.makeWrapper
+              pkgs.installShellFiles
+            ];
+
+            postInstall = ''
+              wrapProgram $out/bin/chromecastise --prefix PATH : ${
+                pkgs.lib.strings.makeBinPath [
+                  pkgs.mediainfo
+                  pkgs.ffmpeg
+                ]
+              }
+            '';
+          };
+          default = chromecastise;
+        }
+      );
+
       overlays.default = final: prev: {
         inherit (self.packages.${prev.system}) chromecastise;
       };
